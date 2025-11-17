@@ -89,6 +89,7 @@ defineProps<Props>();
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  border-radius: var(--radius-sm);
 }
 
 .model-card:hover .model-thumbnail img {
@@ -102,6 +103,8 @@ defineProps<Props>();
   right: 0;
   padding: var(--space-md);
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  border-top-left-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm);
 }
 
 .stat {
@@ -133,7 +136,7 @@ defineProps<Props>();
 }
 
 .model-description {
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
   flex: 1;
 }
 

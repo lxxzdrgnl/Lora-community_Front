@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { authStore, api, type UserResponse } from '../services/api';
+import ThemeToggle from './ThemeToggle.vue';
 
 const isLoggedIn = ref(false);
 const user = ref<UserResponse | null>(null);
@@ -48,7 +49,7 @@ const handleClickOutside = (event: MouseEvent) => {
   if (!target.closest('.user-menu')) {
     showUserMenu.value = false;
   }
-  if (!target.closest('.mobile-menu-container')) {
+  if (!target.closest('.mobile-menu') && !target.closest('.mobile-menu-btn')) {
     showMobileMenu.value = false;
   }
 };
@@ -110,15 +111,8 @@ const handleLogout = async () => {
         </div>
 
         <!-- User Section -->
-        <div class="nav-user flex items-center gap-md">
-          <!-- Mobile Menu Button -->
-          <button class="mobile-menu-btn" @click="toggleMobileMenu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
+        <div class="nav-user flex items-center gap-xs">
+          <ThemeToggle />
 
           <!-- Desktop User Menu -->
           <template v-if="isLoggedIn && user">
@@ -154,6 +148,15 @@ const handleLogout = async () => {
           <template v-else>
             <button @click="handleLogin" class="btn btn-primary btn-sm desktop-login">Login with Google</button>
           </template>
+
+          <!-- Mobile Menu Button -->
+          <button class="mobile-menu-btn" @click="toggleMobileMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -176,24 +179,20 @@ const handleLogout = async () => {
 
         <!-- Mobile User Section -->
         <template v-if="isLoggedIn && user">
-          <router-link to="/profile" class="mobile-menu-item" @click="showMobileMenu = false">
-            Profile
-          </router-link>
-          <router-link to="/my-models" class="mobile-menu-item" @click="showMobileMenu = false">
-            My Models
-          </router-link>
-          <router-link to="/favorites" class="mobile-menu-item" @click="showMobileMenu = false">
-            Favorites
-          </router-link>
-          <button @click="handleLogout" class="mobile-menu-item">
-            Logout
-          </button>
+          <!-- Logout button removed as per user request -->
         </template>
         <template v-else>
           <button @click="handleLogin" class="btn btn-primary w-full">
             Login with Google
           </button>
         </template>
+
+        <div class="divider"></div>
+
+        <div class="mobile-menu-bottom flex items-center justify-between">
+          <span class="text-sm text-muted">Switch Theme</span>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   </nav>
@@ -201,14 +200,13 @@ const handleLogout = async () => {
 
 <style scoped>
 .navbar {
-  background: var(--bg-card);
+  background: rgba(var(--bg-card-rgb), 0.8); /* Use theme-aware background with transparency */
   border-bottom: 1px solid var(--border);
   padding: var(--space-md) 0;
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(10px);
-  background: rgba(10, 10, 10, 0.9);
 }
 
 .nav-content {
@@ -362,6 +360,11 @@ const handleLogout = async () => {
 
   .user-menu .flex span {
     display: none;
+  }
+
+  .nav-user .btn-icon,
+  .nav-user .mobile-menu-btn {
+    padding: var(--space-sm);
   }
 }
 </style>

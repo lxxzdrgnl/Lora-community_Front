@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import Navigation from './components/Navigation.vue';
+import { useTheme } from './composables/useTheme';
+
+useTheme();
 </script>
 
 <template>

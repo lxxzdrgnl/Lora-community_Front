@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* ========== CSS Variables ========== */
 :root {
   /* Colors - Monochrome */
@@ -7,7 +9,9 @@
   --accent: #a0a0a0;
 
   --bg-dark: #000000;
+  --bg-dark-rgb: 0, 0, 0;
   --bg-card: #0a0a0a;
+  --bg-card-rgb: 10, 10, 10;
   --bg-hover: #1a1a1a;
   --border: #2a2a2a;
 
@@ -40,6 +44,33 @@
   --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
+[data-theme='light'] {
+  --primary: #000000;
+  --primary-dark: #1a1a1a;
+  --secondary: #3a3a3a;
+  --accent: #5a5a5a;
+
+  --bg-dark: #f8f8f8;
+  --bg-dark-rgb: 248, 248, 248;
+  --bg-card: #f8f8f8;
+  --bg-card-rgb: 248, 248, 248;
+  --bg-hover: #f5f5f5;
+  --border: #cccccc;
+
+  --text-primary: #000000;
+  --text-secondary: #3a3a3a;
+  --text-muted: #707070;
+
+  --success: #000000;
+  --error: #1f1f1f;
+  --warning: #2f2f2f;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
 /* ========== Reset ========== */
 * {
   margin: 0;
@@ -49,7 +80,7 @@
 
 /* ========== Base Styles ========== */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
     'Helvetica Neue', sans-serif;
   background: var(--bg-dark);
   color: var(--text-primary);
@@ -522,7 +553,8 @@ body {
 }
 
 @media (max-width: 768px) {
-  .container {
+  .container,
+  .container-sm {
     padding: 0 var(--space-md);
   }
 

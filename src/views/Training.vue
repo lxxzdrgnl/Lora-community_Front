@@ -596,7 +596,7 @@ onUnmounted(() => {
 
 <style scoped>
 .training-page {
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-xl) 0;
   min-height: calc(100vh - 200px);
 }
 
