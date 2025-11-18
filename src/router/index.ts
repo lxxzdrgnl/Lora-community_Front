@@ -1,12 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ModelList from '../views/ModelList.vue';
-import ModelDetail from '../views/ModelDetail.vue';
 import Login from '../views/Login.vue';
 import AuthCallback from '../views/AuthCallback.vue';
 import Profile from '../views/Profile.vue';
 import Search from '../views/Search.vue';
 import Training from '../views/Training.vue';
-import Generate from '../views/Generate.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,19 +20,9 @@ const router = createRouter({
       component: ModelList,
     },
     {
-      path: '/models/:id',
-      name: 'model-detail',
-      component: ModelDetail,
-    },
-    {
       path: '/search',
       name: 'search',
       component: Search,
-    },
-    {
-      path: '/generate',
-      name: 'generate',
-      component: Generate,
     },
     {
       path: '/training',

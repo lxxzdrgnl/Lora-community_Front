@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ModelCard from '../components/ModelCard.vue';
+import ModelDetailModal from '../components/ModelDetailModal.vue';
 import { api, authStore, type UserResponse, type LoraModel } from '../services/api';
 
 const router = useRouter();
@@ -13,6 +14,25 @@ const editForm = ref({
   nickname: '',
   profileImageUrl: '',
 });
+
+const showDetailModal = ref(false);
+const selectedModelId = ref<number | null>(null);
+
+const openModelDetail = (modelId: number) => {
+  selectedModelId.value = modelId;
+  showDetailModal.value = true;
+};
+
+const closeModelDetail = () => {
+  showDetailModal.value = false;
+  selectedModelId.value = null;
+};
+
+const refreshAllModels = () => {
+  loadMyModels();
+  loadFavoriteModels();
+  loadLikedModels();
+};
 
 // Set initial tab based on route
 const getInitialTab = () => {
@@ -225,12 +245,13 @@ const saveProfile = async () => {
       <div>
         <!-- My Models Tab -->
         <div v-if="activeTab === 'models'">
+          <h2 class="text-2xl font-bold mb-lg">내 모델</h2>
           <div v-if="myModels.length" class="grid grid-cols-4 gap-lg">
-            <a
+            <div
               v-for="model in myModels"
               :key="model.id"
-              :href="`/models/${model.id}`"
-              style="text-decoration: none; color: inherit;"
+              @click="openModelDetail(model.id)"
+              class="cursor-pointer"
             >
               <ModelCard
                 :id="model.id"
@@ -242,7 +263,7 @@ const saveProfile = async () => {
                 :viewCount="model.viewCount"
                 :favoriteCount="model.favoriteCount"
               />
-            </a>
+            </div>
           </div>
           <div v-else class="card text-center p-xl">
             <p class="text-secondary text-lg mb-md">You haven't created any models yet</p>
@@ -256,11 +277,11 @@ const saveProfile = async () => {
           <div v-if="likedModels.length > 0" class="mb-xl">
             <h2 class="text-2xl font-bold mb-lg">좋아요한 모델</h2>
             <div class="grid grid-cols-4 gap-lg">
-              <a
+              <div
                 v-for="model in likedModels"
                 :key="model.id"
-                :href="`/models/${model.id}`"
-                style="text-decoration: none; color: inherit;"
+                @click="openModelDetail(model.id)"
+                class="cursor-pointer"
               >
                 <ModelCard
                   :id="model.id"
@@ -272,7 +293,7 @@ const saveProfile = async () => {
                   :viewCount="model.viewCount"
                   :favoriteCount="model.favoriteCount"
                 />
-              </a>
+              </div>
             </div>
           </div>
 
@@ -280,11 +301,11 @@ const saveProfile = async () => {
           <div v-if="favoriteModels.length > 0">
             <h2 class="text-2xl font-bold mb-lg">즐겨찾기한 모델</h2>
             <div class="grid grid-cols-4 gap-lg">
-              <a
+              <div
                 v-for="model in favoriteModels"
                 :key="model.id"
-                :href="`/models/${model.id}`"
-                style="text-decoration: none; color: inherit;"
+                @click="openModelDetail(model.id)"
+                class="cursor-pointer"
               >
                 <ModelCard
                   :id="model.id"
@@ -296,7 +317,7 @@ const saveProfile = async () => {
                   :viewCount="model.viewCount"
                   :favoriteCount="model.favoriteCount"
                 />
-              </a>
+              </div>
             </div>
           </div>
 
@@ -330,6 +351,12 @@ const saveProfile = async () => {
       </div>
     </div>
   </div>
+  <ModelDetailModal 
+    :show="showDetailModal" 
+    :model-id="selectedModelId" 
+    @close="closeModelDetail"
+    @model-update="refreshAllModels" 
+  />
 </template>
 
 <style scoped>

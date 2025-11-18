@@ -13,16 +13,21 @@ interface Props {
 }
 
 defineProps<Props>();
+defineEmits(['click']);
 </script>
 
 <template>
-  <div class="model-card card card-clickable">
+  <div class="model-card card card-clickable" @click="$emit('click')">
     <div class="model-thumbnail">
       <img
-        :src="thumbnailUrl || 'https://via.placeholder.com/400x300?text=No+Image'"
+        v-if="thumbnailUrl"
+        :src="thumbnailUrl"
         :alt="title"
         class="img-cover"
       />
+      <div v-else class="placeholder-thumbnail">
+        <span>No Image</span>
+      </div>
 
       <!-- Liked Indicator -->
       <div v-if="isLiked" class="liked-indicator">
@@ -88,6 +93,17 @@ defineProps<Props>();
   height: 100%;
   overflow: hidden;
   background: var(--bg-hover);
+}
+
+.placeholder-thumbnail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .model-thumbnail img {

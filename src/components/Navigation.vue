@@ -106,7 +106,6 @@ const handleLogout = async () => {
         <!-- Navigation Links (Desktop) -->
         <div class="nav-links flex items-center gap-lg">
           <router-link to="/" class="nav-link">Explore</router-link>
-          <router-link to="/generate" class="nav-link">Generate</router-link>
           <router-link to="/training" class="nav-link">Training</router-link>
         </div>
 
@@ -167,9 +166,6 @@ const handleLogout = async () => {
         <!-- Mobile Navigation Links -->
         <router-link to="/" class="mobile-menu-item" @click="showMobileMenu = false">
           Explore
-        </router-link>
-        <router-link to="/generate" class="mobile-menu-item" @click="showMobileMenu = false">
-          Generate
         </router-link>
         <router-link to="/training" class="mobile-menu-item" @click="showMobileMenu = false">
           Training

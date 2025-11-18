@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import ModelCard from '../components/ModelCard.vue';
+import GenerateModal from '../components/GenerateModal.vue';
+import ModelDetailModal from '../components/ModelDetailModal.vue';
 import { api, type LoraModel, type TagResponse } from '../services/api';
 
 const models = ref<LoraModel[]>([]);
 const loading = ref(true);
 const error = ref('');
-const activeTab = ref<'recent' | 'popular'>('recent');
+const activeTab = ref<'recent' | 'popular'>('popular');
 const selectedTags = ref<string[]>([]);
 const popularTags = ref<TagResponse[]>([]);
 const searchQuery = ref('');
+const showGenerateModal = ref(false);
+const showModelDetailModal = ref(false);
+const selectedModelId = ref<number | null>(null);
 
 // Pagination
 const currentPage = ref(0);
@@ -42,6 +47,7 @@ const fetchModels = async () => {
       response = await api.search.searchModels(searchQuery.value, currentPage.value, pageSize);
     } else if (selectedTags.value.length > 0) {
       response = await api.models.filterByTags(selectedTags.value, currentPage.value, pageSize);
+      console.log('Filtered models response:', response.data.content);
     } else if (activeTab.value === 'popular') {
       response = await api.models.getPopularModels(currentPage.value, pageSize);
     } else {
@@ -92,6 +98,35 @@ const clearSearch = () => {
   searchQuery.value = '';
   currentPage.value = 0;
   fetchModels();
+};
+
+const openGenerateModal = (modelId: number | null = null) => {
+  selectedModelId.value = modelId;
+  showGenerateModal.value = true;
+};
+
+const closeGenerateModal = () => {
+  showGenerateModal.value = false;
+  selectedModelId.value = null;
+};
+
+const openModelDetailModal = (modelId: number) => {
+  console.log('Opening detail modal for model ID:', modelId);
+  selectedModelId.value = modelId;
+  showModelDetailModal.value = true;
+};
+
+const closeModelDetailModal = () => {
+  showModelDetailModal.value = false;
+  selectedModelId.value = null;
+};
+
+const handleOpenGenerate = (modelId: number) => {
+  closeModelDetailModal();
+  // Use a timeout to ensure the detail modal is closed before opening the generate modal
+  setTimeout(() => {
+    openGenerateModal(modelId);
+  }, 150);
 };
 </script>
 
@@ -145,28 +180,28 @@ const clearSearch = () => {
         <div class="tabs-group flex gap-sm" v-if="!searchQuery">
           <button
             class="btn"
-            :class="activeTab === 'recent' ? 'btn-primary' : 'btn-secondary'"
-            @click="changeTab('recent')"
-          >
-            Recent
-          </button>
-          <button
-            class="btn"
             :class="activeTab === 'popular' ? 'btn-primary' : 'btn-secondary'"
             @click="changeTab('popular')"
           >
             Popular
           </button>
+          <button
+            class="btn"
+            :class="activeTab === 'recent' ? 'btn-primary' : 'btn-secondary'"
+            @click="changeTab('recent')"
+          >
+            Recent
+          </button>
         </div>
 
         <!-- Generate Button -->
-        <router-link to="/generate" class="btn btn-primary">
+        <button @click="openGenerateModal(null)" class="btn btn-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
           Generate
-        </router-link>
+        </button>
       </div>
 
       <!-- Tags Filter -->
@@ -206,24 +241,20 @@ const clearSearch = () => {
 
       <!-- Models -->
       <div v-else-if="models.length" class="grid grid-cols-4 gap-lg">
-        <router-link
+        <ModelCard
           v-for="model in models"
           :key="model.id"
-          :to="`/models/${model.id}`"
-          style="text-decoration: none; color: inherit;"
-        >
-          <ModelCard
-            :id="model.id"
-            :title="model.title"
-            :description="model.description"
-            :userNickname="model.userNickname"
-            :likeCount="model.likeCount"
-            :viewCount="model.viewCount"
-            :favoriteCount="model.favoriteCount"
-            :isLiked="model.isLiked"
-            :thumbnailUrl="model.thumbnailUrl"
-          />
-        </router-link>
+          :id="model.id"
+          :title="model.title"
+          :description="model.description"
+          :userNickname="model.userNickname"
+          :likeCount="model.likeCount"
+          :viewCount="model.viewCount"
+          :favoriteCount="model.favoriteCount"
+          :isLiked="model.isLiked"
+          :thumbnailUrl="model.thumbnailUrl"
+          @click="openModelDetailModal(model.id)"
+        />
       </div>
 
       <!-- Empty State -->
@@ -264,6 +295,14 @@ const clearSearch = () => {
       </button>
     </div>
   </div>
+  <GenerateModal :show="showGenerateModal" :initial-model-id="selectedModelId" @close="closeGenerateModal" />
+  <ModelDetailModal
+    :show="showModelDetailModal"
+    :model-id="selectedModelId"
+    @close="closeModelDetailModal"
+    @open-generate="handleOpenGenerate"
+    @model-update="fetchModels"
+  />
 </template>
 
 <style scoped>

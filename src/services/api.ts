@@ -367,6 +367,14 @@ export const api = {
       return handleResponse(response);
     },
 
+    async deleteComment(modelId: number, commentId: number): Promise<ApiResponse<void>> {
+      const response = await fetch(`/api/models/${modelId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      return handleResponse(response);
+    },
+
     async getFavoriteModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
         `/api/models/favorites?page=${page}&size=${size}`,
