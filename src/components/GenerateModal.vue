@@ -82,10 +82,14 @@ const loadModels = async () => {
   isLoadingModels.value = true;
   loadError.value = '';
   try {
-    // 내 모델 로드
+    // 내 모델 로드 (COMPLETED 상태이고 s3Key가 있는 것만)
     try {
       const myResponse = await api.models.getMyModels(0, 100);
-      myModels.value = myResponse.data.content.filter(m => m.status === 'COMPLETED');
+      myModels.value = myResponse.data.content.filter(m => {
+        console.log(`Model ${m.id}: status=${m.status}, s3Key=${m.s3Key || 'null'}`);
+        return m.status === 'COMPLETED' && m.s3Key;
+      });
+      console.log('My usable models (with s3Key):', myModels.value.length);
     } catch (myErr) {
       myModels.value = [];
     }
@@ -124,6 +128,11 @@ const closeModelModal = () => {
 };
 
 const selectModel = (model: LoraModel) => {
+  if (!model.s3Key) {
+    error.value = `모델 "${model.title}"의 학습 파일이 아직 업로드되지 않았습니다. 학습이 완전히 완료된 후 다시 시도해주세요.`;
+    closeModelModal();
+    return;
+  }
   selectedModel.value = model;
   closeModelModal();
 };
@@ -159,19 +168,42 @@ const startGeneration = async () => {
     currentStep.value = 0;
     totalSteps.value = steps.value;
 
-    await api.generation.generateImage({
+    // Prepare payload - only include defined values
+    const payload: Record<string, unknown> = {
       modelId: selectedModel.value.id,
       prompt: prompt.value,
-      negativePrompt: negativePrompt.value,
-      steps: steps.value,
-      guidanceScale: guidanceScale.value,
-      seed: seed.value,
-    });
+    };
+
+    if (negativePrompt.value) {
+      payload.negativePrompt = negativePrompt.value;
+    }
+    if (steps.value) {
+      payload.steps = steps.value;
+    }
+    if (guidanceScale.value) {
+      payload.guidanceScale = guidanceScale.value;
+    }
+    if (numImages.value) {
+      payload.numImages = numImages.value;
+    }
+    if (seed.value !== undefined && seed.value !== null) {
+      payload.seed = seed.value;
+    }
+
+    console.log('Sending generation request:', payload);
+
+    const response = await api.generation.generateImage(payload as any);
+    console.log('Generation response:', response);
 
     statusMessage.value = 'Generation started...';
     connectToProgressStream();
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to start generation';
+    console.error('Generation error:', err);
+    if (err instanceof Error) {
+      error.value = `생성 실패: ${err.message}`;
+    } else {
+      error.value = '이미지 생성을 시작할 수 없습니다.';
+    }
     isGenerating.value = false;
   }
 };

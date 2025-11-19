@@ -16,7 +16,14 @@ export default defineConfig({
     },
   },
   server: {
-    host: true, // devtunnels에서 접근 가능하도록
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'camilo-unirradiative-indissolubly.ngrok-free.dev',
+      '*.ngrok-free.dev',
+      '*.ngrok.io',
+    ],
+    host: '0.0.0.0', // 이 설정도 추가해 주세요.
     proxy: {
       '/api': {
         target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',

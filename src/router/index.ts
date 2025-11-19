@@ -5,6 +5,7 @@ import AuthCallback from '../views/AuthCallback.vue';
 import Profile from '../views/Profile.vue';
 import Search from '../views/Search.vue';
 import Training from '../views/Training.vue';
+import GenerateDebug from '../views/GenerateDebug.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +54,11 @@ const router = createRouter({
       path: '/favorites',
       name: 'favorites',
       component: Profile,
+    },
+    {
+      path: '/debug/generate',
+      name: 'generate-debug',
+      component: GenerateDebug,
     },
   ],
 });

@@ -122,36 +122,41 @@ const removeImage = (index: number) => {
 };
 
 // Upload images to S3
-const uploadImagesToS3 = async (): Promise<boolean> => {
+const uploadImagesToS3 = async (): Promise<string[]> => {
   if (selectedImages.value.length === 0) {
     error.value = '업로드할 이미지를 선택해주세요.';
-    return false;
+    return [];
   }
 
-  statusMessage.value = 'Uploading images to S3...';
+  statusMessage.value = 'Getting presigned URLs...';
 
   try {
+    // Get all presigned URLs at once
+    const fileNames = selectedImages.value.map(file => file.name);
+    const urlResponse = await api.upload.getPresignedUrls(fileNames);
+    const { uploadUrls, downloadUrls } = urlResponse.data;
+
+    statusMessage.value = 'Uploading images to S3...';
+
+    // Upload all images
     for (let i = 0; i < selectedImages.value.length; i++) {
       const file = selectedImages.value[i];
-      if (!file) { // Add null check for file
-        console.warn(`Skipping undefined file at index ${i}`);
+      const uploadUrl = uploadUrls[i];
+      if (!file || !uploadUrl) {
+        console.warn(`Skipping undefined file or URL at index ${i}`);
         continue;
       }
       statusMessage.value = `Uploading image ${i + 1}/${selectedImages.value.length}...`;
 
-      // Get presigned URL
-      const urlResponse = await api.upload.getPresignedUrl(file.name);
-      const presignedUrl = urlResponse.data.presignedUrl;
-
-      // Upload to S3
-      await api.upload.uploadToS3(presignedUrl, file);
+      // Upload to S3 using presigned URL
+      await api.upload.uploadToS3(uploadUrl, file);
     }
 
     statusMessage.value = 'All images uploaded successfully!';
-    return true;
+    return downloadUrls;
   } catch (err) {
     error.value = `Failed to upload images: ${err instanceof Error ? err.message : 'Unknown error'}`;
-    return false;
+    return [];
   }
 };
 
@@ -168,9 +173,9 @@ const startTraining = async () => {
     currentEpoch.value = 0;
     totalEpochs.value = epochs.value;
 
-    // 1. Upload images to S3
-    const uploadSuccess = await uploadImagesToS3();
-    if (!uploadSuccess) {
+    // 1. Upload images to S3 and get download URLs
+    const trainingImageUrls = await uploadImagesToS3();
+    if (trainingImageUrls.length === 0) {
       isTraining.value = false;
       return;
     }
@@ -199,11 +204,11 @@ const startTraining = async () => {
     trainingJobId.value = jobResponse.data.id;
     statusMessage.value = 'Starting training...';
 
-    // 4. Start training
+    // 4. Start training with S3 URLs
     await api.training.startTraining(trainingJobId.value, {
-      epochs: epochs.value,
-      learningRate: learningRate.value,
-      loraRank: loraRank.value,
+      totalEpochs: epochs.value,
+      modelName: title.value,
+      trainingImageUrls: trainingImageUrls,
     });
 
     statusMessage.value = 'Training started...';

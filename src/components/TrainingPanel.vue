@@ -46,7 +46,11 @@ const startTraining = async () => {
     }
 
     if (trainingJobId.value !== null) {
-      const response = await api.training.startTraining(trainingJobId.value, config.value as Record<string, unknown>);
+      const response = await api.training.startTraining(trainingJobId.value, {
+        totalEpochs: 10,
+        modelName: config.value.output_dir,
+        trainingImageUrls: [], // Empty for now, needs proper implementation
+      });
       statusMessage.value = response.message as string; // Assuming message is string
       isTraining.value = true;
 

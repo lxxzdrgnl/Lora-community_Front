@@ -58,7 +58,7 @@ const handleProfileUpdate = (event: Event) => {
   const customEvent = event as CustomEvent;
   if (customEvent.detail) {
     user.value = customEvent.detail;
-    console.log('Navigation - profile updated:', user.value.nickname);
+    console.log('Navigation - profile updated:', user.value?.nickname);
   }
 };
 

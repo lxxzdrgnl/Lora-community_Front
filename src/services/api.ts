@@ -31,9 +31,12 @@ export interface LoraModel {
   baseModel: string;
   isPublic: boolean;
   status: string;
+  s3Key?: string;
   viewCount: number;
   likeCount: number;
   favoriteCount: number;
+  isLiked?: boolean;
+  isFavorited?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -121,6 +124,7 @@ export interface GenerateConfig {
   negativePrompt?: string;
   steps?: number;
   guidanceScale?: number;
+  numImages?: number;
   seed?: number;
 }
 
@@ -153,8 +157,15 @@ const getAuthHeaders = (): HeadersInit => {
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || `HTTP Error: ${response.status}`);
+    let errorMessage = `HTTP Error: ${response.status}`;
+    try {
+      const error = await response.json();
+      console.error('API Error Response:', error);
+      errorMessage = error.message || error.error || errorMessage;
+    } catch (e) {
+      console.error('Failed to parse error response:', e);
+    }
+    throw new Error(errorMessage);
   }
   return response.json();
 };
@@ -462,11 +473,12 @@ export const api = {
 
   // ========== Upload ==========
   upload: {
-    async getPresignedUrl(fileName: string): Promise<ApiResponse<{ presignedUrl: string }>> {
-      const response = await fetch(
-        `/api/v1/upload-url?fileName=${encodeURIComponent(fileName)}`,
-        { headers: getAuthHeaders() }
-      );
+    async getPresignedUrls(fileNames: string[]): Promise<ApiResponse<{ uploadUrls: string[]; downloadUrls: string[] }>> {
+      const response = await fetch(`/api/training/upload-urls`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ fileNames }),
+      });
       return handleResponse(response);
     },
 
@@ -514,7 +526,12 @@ export const api = {
       return handleResponse(response);
     },
 
-    async startTraining(jobId: number, config: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>>> {
+    async startTraining(jobId: number, config: {
+      totalEpochs: number;
+      modelName: string;
+      trainingImageUrls: string[];
+      callbackBaseUrl?: string;
+    }): Promise<ApiResponse<Record<string, unknown>>> {
       const response = await fetch(`/api/training/jobs/${jobId}/start`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -563,13 +580,16 @@ export const api = {
       negativePrompt?: string;
       steps?: number;
       guidanceScale?: number;
+      numImages?: number;
       seed?: number;
     }): Promise<ApiResponse<Record<string, unknown>>> {
+      console.log('API Request - POST /api/generate:', data);
       const response = await fetch(`/api/generate`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(data),
       });
+      console.log('API Response status:', response.status);
       return handleResponse(response);
     },
 
