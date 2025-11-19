@@ -134,7 +134,7 @@ defineEmits(['click']);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--space-md);
+  padding: var(--space-sm); /* Reduced padding */
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0.8) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;

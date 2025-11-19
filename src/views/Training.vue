@@ -310,7 +310,7 @@ onUnmounted(() => {
         <!-- Left: Configuration -->
         <div class="config-section">
           <div class="card">
-            <h2 class="text-2xl font-bold mb-lg">Training Configuration</h2>
+            <h2 class="text-2xl font-bold mb-lg gradient-text">Training Configuration</h2>
 
             <!-- Model Info -->
             <div class="form-group">
@@ -525,7 +525,7 @@ onUnmounted(() => {
         <!-- Right: Training History -->
         <div class="history-section">
           <div class="card">
-            <h2 class="text-2xl font-bold mb-lg">Training History</h2>
+            <h2 class="text-2xl font-bold mb-lg gradient-text">Training History</h2>
 
             <div v-if="trainingHistory.length === 0" class="empty-state text-center py-xl">
               <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="mx-auto mb-md" style="color: var(--text-muted);">

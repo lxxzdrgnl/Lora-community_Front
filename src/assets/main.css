@@ -2,26 +2,24 @@
 
 /* ========== CSS Variables ========== */
 :root {
-  /* Colors - Monochrome */
-  --primary: #ffffff;
-  --primary-dark: #e5e5e5;
-  --secondary: #d0d0d0;
-  --accent: #a0a0a0;
+  --primary: #0047AB; /* Cobalt Blue */
+  --primary-dark: #003380; /* Darker Cobalt Blue */
+  --accent: #0047AB; /* Cobalt Blue */
 
-  --bg-dark: #000000;
-  --bg-dark-rgb: 0, 0, 0;
-  --bg-card: #0a0a0a;
-  --bg-card-rgb: 10, 10, 10;
-  --bg-hover: #1a1a1a;
+  --bg-dark: #0d0d0d; /* Very dark gray */
+  --bg-dark-rgb: 13, 13, 13;
+  --bg-card: #1a1a1a; /* Lighter dark gray */
+  --bg-card-rgb: 26, 26, 26;
+  --bg-hover: #2a2a2a; /* Lighter gray for hover */
   --border: #2a2a2a;
 
-  --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-muted: #707070;
+  --text-primary: #f0f0f0; /* Soft white */
+  --text-secondary: #a0a0a0; /* Light gray */
+  --text-muted: #606060;
 
-  --success: #ffffff;
-  --error: #e0e0e0;
-  --warning: #d0d0d0;
+  --success: #22c55e; /* Green */
+  --error: #ef4444;   /* Red */
+  --warning: #f59e0b; /* Amber */
 
   /* Spacing */
   --space-xs: 4px;
@@ -35,41 +33,41 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 24px; /* Added for larger rounded corners on modals */
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.1);
+  --shadow-glow: 0 0 20px rgba(0, 71, 171, 0.4); /* Cobalt Blue Glow */
 }
 
 [data-theme='light'] {
-  --primary: #000000;
-  --primary-dark: #1a1a1a;
-  --secondary: #3a3a3a;
-  --accent: #5a5a5a;
+  --primary: #0047AB; /* Cobalt Blue */
+  --primary-dark: #003380; /* Darker Cobalt Blue */
+  --secondary: #6b7280; /* Gray */
+  --accent: #0047AB; /* Cobalt Blue */
 
-  --bg-dark: #f8f8f8;
-  --bg-dark-rgb: 248, 248, 248;
-  --bg-card: #f8f8f8;
-  --bg-card-rgb: 248, 248, 248;
-  --bg-hover: #f5f5f5;
-  --border: #cccccc;
+  --bg-dark: #f9fafb; /* Almost white */
+  --bg-dark-rgb: 249, 250, 251;
+  --bg-card: #ffffff; /* White */
+  --bg-card-rgb: 255, 255, 255;
+  --bg-hover: #f3f4f6; /* Light gray */
+  --border: #e5e7eb;
 
-  --text-primary: #000000;
-  --text-secondary: #3a3a3a;
-  --text-muted: #707070;
+  --text-primary: #111827; /* Dark gray */
+  --text-secondary: #4b5563; /* Medium gray */
+  --text-muted: #9ca3af;
 
-  --success: #000000;
-  --error: #1f1f1f;
-  --warning: #2f2f2f;
+  --success: #16a34a; /* Green */
+  --error: #dc2626;   /* Red */
+  --warning: #d97706; /* Amber */
   
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(0, 71, 171, 0.2); /* Cobalt Blue Glow */
 }
 
 /* ========== Reset ========== */
@@ -278,15 +276,19 @@ body {
 }
 
 .btn-primary {
-  background: var(--text-primary);
-  color: var(--bg-dark);
+  background: var(--primary);
+  color: var(--text-primary);
   box-shadow: var(--shadow-glow);
+}
+
+[data-theme='light'] .btn-primary {
+  color: #ffffff;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   background: var(--primary-dark);
-  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 24px rgba(0, 71, 171, 0.3);
 }
 
 .btn-secondary {
@@ -339,8 +341,8 @@ body {
 
 .input:focus {
   outline: none;
-  border-color: var(--text-primary);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 71, 171, 0.2);
 }
 
 .input::placeholder {
@@ -363,8 +365,8 @@ body {
 
 .textarea:focus {
   outline: none;
-  border-color: var(--text-primary);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 71, 171, 0.2);
 }
 
 .label {
@@ -391,8 +393,8 @@ body {
 }
 
 .badge-primary {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: rgba(0, 71, 171, 0.15);
+  color: var(--primary);
 }
 
 .badge-secondary {
@@ -401,18 +403,18 @@ body {
 }
 
 .badge-success {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--text-primary);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
 }
 
 .badge-error {
-  background: rgba(224, 224, 224, 0.1);
-  color: var(--text-secondary);
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error);
 }
 
 .badge-warning {
-  background: rgba(208, 208, 208, 0.1);
-  color: var(--text-secondary);
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
 }
 
 .tag {
@@ -432,13 +434,13 @@ body {
 .tag:hover {
   background: var(--bg-card);
   border-color: var(--primary);
-  color: var(--text-primary);
+  color: var(--primary);
 }
 
 .tag.active {
-  background: var(--text-primary);
+  background: var(--primary);
   border-color: transparent;
-  color: var(--bg-dark);
+  color: var(--text-primary);
 }
 
 /* ========== Images ========== */
@@ -517,10 +519,7 @@ body {
 
 /* ========== Special Components ========== */
 .gradient-text {
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 50%, var(--text-muted) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 .divider {
@@ -534,7 +533,7 @@ body {
   width: 20px;
   height: 20px;
   border: 3px solid var(--bg-hover);
-  border-top-color: var(--text-primary);
+  border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

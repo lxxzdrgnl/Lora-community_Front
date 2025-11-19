@@ -200,7 +200,7 @@ const deleteComment = async (commentId: number) => {
 
               <!-- Sample Images -->
               <section class="samples-section mb-lg">
-                <div class="grid grid-cols-3 gap-lg hide-scrollbar">
+                <div class="grid grid-cols-2 gap-lg hide-scrollbar">
                   <div v-for="sample in model.samples" :key="sample.id" class="sample-item">
                     <img :src="sample.imageUrl" alt="Sample" class="img-cover rounded-lg" />
                   </div>
@@ -237,7 +237,7 @@ const deleteComment = async (commentId: number) => {
               <!-- Prompts -->
               <section class="prompts-section mb-lg">
                 <div class="flex items-center justify-between mb-lg">
-                  <h2 class="text-2xl font-bold">Prompt Examples</h2>
+                  <h2 class="text-2xl font-bold gradient-text">Prompt Examples</h2>
                   <button v-if="isOwner && editingPromptId === null" @click="editingPromptId = -1" class="btn btn-sm btn-primary">
                     Add New Prompt
                   </button>
@@ -301,7 +301,7 @@ const deleteComment = async (commentId: number) => {
 
             <!-- Comments -->
             <section class="comments-section scrollable-column">
-              <h2 class="text-2xl font-bold mb-lg">Comments</h2>
+              <h2 class="text-2xl font-bold mb-lg gradient-text">Comments</h2>
               <div class="card mb-lg">
                 <textarea v-model="newComment" class="textarea mb-md" placeholder="Write a comment..." rows="3"></textarea>
                 <button class="btn btn-primary" @click="submitComment">Post Comment</button>
@@ -363,7 +363,7 @@ const deleteComment = async (commentId: number) => {
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -389,6 +389,16 @@ const deleteComment = async (commentId: number) => {
 
 .sample-item {
   aspect-ratio: 0.8;
+  overflow: hidden; /* Ensure content doesn't overflow during scale */
+}
+
+.sample-item img {
+  transition: transform 0.3s ease, filter 0.3s ease; /* Add transition for smooth effect */
+}
+
+.sample-item img:hover {
+  transform: scale(1.05); /* Slightly scale up */
+  filter: brightness(1.1); /* Slightly brighten */
 }
 
 @media (max-width: 768px) {

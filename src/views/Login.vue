@@ -15,7 +15,7 @@ const handleGoogleLogin = () => {
       <div class="login-card card">
         <!-- Logo -->
         <div class="text-center mb-xl">
-          <h1 class="text-4xl font-bold gradient-text mb-md">LoRA Platform</h1>
+          <h1 class="text-4xl font-bold gradient-text mb-md">Blueming AI</h1>
           <p class="text-lg text-secondary">Sign in to continue</p>
         </div>
 

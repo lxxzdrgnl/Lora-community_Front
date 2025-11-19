@@ -270,7 +270,7 @@ onUnmounted(() => {
           <!-- Left: Configuration -->
           <div class="config-section">
             <div class="card">
-              <h2 class="text-2xl font-bold mb-lg">Configuration</h2>
+              <h2 class="text-2xl font-bold mb-lg gradient-text">Configuration</h2>
 
               <!-- Model Selection -->
               <div class="form-group">
@@ -346,7 +346,7 @@ onUnmounted(() => {
           <!-- Right: Generated Images -->
           <div class="results-section">
             <div class="card">
-              <h2 class="text-2xl font-bold mb-lg">Generated Images</h2>
+              <h2 class="text-2xl font-bold mb-lg gradient-text">Generated Images</h2>
               <div v-if="generatedImages.length === 0" class="empty-state text-center py-xl">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="mx-auto mb-md" style="color: var(--text-muted);">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>

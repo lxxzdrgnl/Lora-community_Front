@@ -99,7 +99,7 @@ const handleLogout = async () => {
         <!-- Logo -->
         <div class="nav-brand">
           <a href="/" class="logo gradient-text text-2xl font-bold">
-            LoRA Platform
+            Blueming AI
           </a>
         </div>
 
@@ -196,13 +196,14 @@ const handleLogout = async () => {
 
 <style scoped>
 .navbar {
-  background: rgba(var(--bg-card-rgb), 0.8); /* Use theme-aware background with transparency */
+  background: rgba(var(--bg-card-rgb), 0.65);
   border-bottom: 1px solid var(--border);
   padding: var(--space-md) 0;
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .nav-content {
@@ -262,6 +263,7 @@ const handleLogout = async () => {
   gap: var(--space-xs);
   box-shadow: var(--shadow-lg);
   z-index: 1000;
+  border: 1px solid var(--border);
 }
 
 .dropdown-item {
