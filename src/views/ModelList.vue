@@ -145,6 +145,9 @@ const handleOpenGenerate = (modelId: number) => {
   <div>
     <header class="hero-section">
       <div class="animation-container">
+        <div class="petal-container">
+          <div v-for="i in 15" :key="i" :class="`petal petal-${i}`"></div>
+        </div>
         <div class="shape shape1"></div>
         <div class="shape shape2"></div>
         <div class="shape shape3"></div>
@@ -157,7 +160,7 @@ const handleOpenGenerate = (modelId: number) => {
         Explore, create, and share with a global community.
       </p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg custom-shadow-glow">
+        <button class="btn btn-primary btn-lg custom-shadow-glow" @click="openGenerateModal(null)">
           Start Creating
         </button>
       </div>
@@ -205,7 +208,7 @@ const handleOpenGenerate = (modelId: number) => {
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Generate
+            Create
           </button>
         </div>
         <div v-if="popularTags.length" class="tags-filter">
@@ -313,6 +316,60 @@ const handleOpenGenerate = (modelId: number) => {
   z-index: 0;
   overflow: hidden;
 }
+
+.petal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  background: rgba(173, 216, 230, 0.7); /* Light blue */
+  border-radius: 150% 0 150% 0;
+  top: -10%;
+  opacity: 0;
+  animation: fall 10s linear infinite;
+}
+
+.petal-1 { left: 10%; animation-delay: 0s; width: 15px; height: 20px; animation-duration: 12s; }
+.petal-2 { left: 20%; animation-delay: 5s; width: 20px; height: 25px; animation-duration: 15s; }
+.petal-3 { left: 30%; animation-delay: 2s; width: 12px; height: 18px; animation-duration: 10s; }
+.petal-4 { left: 40%; animation-delay: 8s; width: 18px; height: 22px; animation-duration: 18s; }
+.petal-5 { left: 50%; animation-delay: 1s; width: 22px; height: 28px; animation-duration: 13s; }
+.petal-6 { left: 60%; animation-delay: 6s; width: 16px; height: 20px; animation-duration: 11s; }
+.petal-7 { left: 70%; animation-delay: 3s; width: 14px; height: 19px; animation-duration: 14s; }
+.petal-8 { left: 80%; animation-delay: 9s; width: 19px; height: 24px; animation-duration: 16s; }
+.petal-9 { left: 90%; animation-delay: 4s; width: 17px; height: 21px; animation-duration: 12s; }
+.petal-10 { left: 5%; animation-delay: 7s; width: 13px; height: 18px; animation-duration: 17s; }
+.petal-11 { left: 15%; animation-delay: 2.5s; width: 18px; height: 23px; animation-name: fall2; animation-duration: 20s; }
+.petal-12 { left: 25%; animation-delay: 6.5s; width: 15px; height: 20px; animation-name: fall3; animation-duration: 13s; }
+.petal-13 { left: 35%; animation-delay: 1.5s; width: 20px; height: 25px; animation-name: fall2; animation-duration: 18s; }
+.petal-14 { left: 45%; animation-delay: 5.5s; width: 12px; height: 17px; animation-name: fall3; animation-duration: 11s; }
+.petal-15 { left: 55%; animation-delay: 0.5s; width: 16px; height: 22px; animation-name: fall2; animation-duration: 14s; }
+
+
+@keyframes fall {
+  0% { top: -10%; opacity: 0; transform: translateX(0) rotate(0deg); }
+  10% { opacity: 1; }
+  100% { top: 110%; opacity: 1; transform: translateX(50px) rotate(270deg); }
+}
+
+@keyframes fall2 {
+  0% { top: -10%; opacity: 0; transform: translateX(0) rotate(0deg); }
+  20% { opacity: 1; }
+  100% { top: 110%; opacity: 1; transform: translateX(-80px) rotate(360deg); }
+}
+
+@keyframes fall3 {
+  0% { top: -10%; opacity: 0; transform: translateX(0) rotate(0deg); }
+  15% { opacity: 1; }
+  100% { top: 110%; opacity: 1; transform: translateX(100px) rotate(180deg); }
+}
+
 
 .shape {
   position: absolute;
