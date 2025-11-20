@@ -3,47 +3,41 @@ name: Deploy Vue Frontend to S3
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시될 때 실행
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 소스 코드 체크아웃
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # 2. Node.js 설치 (버전 20 사용)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. 의존성 설치 (npm install 대신 npm ci 사용 권장)
       - name: Install Dependencies
         run: npm ci
 
-      # Debug Step
       - name: Debug API Base URL
         run: echo "VITE_API_BASE_URL is ${{ secrets.VITE_API_BASE_URL }}"
 
-      # 4. 빌드 (npm run build)
-      # 환경변수(API 주소)를 주입하며 빌드합니다.
+      - name: Show api.ts content
+        run: cat src/services/api.ts
+
       - name: Build
         run: npm run build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
-      # 5. AWS 자격 증명 설정
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2  # 서울 리전
+          aws-region: ap-northeast-2
 
-      # 6. S3에 배포 (동기화)
-      # dist 폴더의 내용을 버킷으로 업로드합니다.
       - name: Deploy to S3
         run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete

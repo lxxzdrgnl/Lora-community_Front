@@ -1,4 +1,3 @@
-
 // ========== Configuration ==========
 const API_BASE_URL = 'http://bluemingai.ap-northeast-2.elasticbeanstalk.com';
 
@@ -247,7 +246,7 @@ export const api = {
   models: {
     async getPublicModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models?page=${page}&size=${size}&sort=createdAt,DESC`,
+        `${API_BASE_URL}/api/models?page=${page}&size=${size}&sort=createdAt,DESC`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -255,7 +254,7 @@ export const api = {
 
     async getPopularModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models/popular?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/popular?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -270,7 +269,7 @@ export const api = {
 
     async getMyModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models/my?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/my?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -319,7 +318,7 @@ export const api = {
 
     async searchModels(query: string, page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -328,7 +327,7 @@ export const api = {
     async filterByTags(tags: string[], page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const tagParams = tags.map(tag => `tags=${encodeURIComponent(tag)}`).join('&');
       const response = await fetch(
-        `/api/models/filter?${tagParams}&page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/filter?${tagParams}&page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -363,7 +362,7 @@ export const api = {
 
     async getComments(modelId: number, page = 0, size = 20): Promise<ApiResponse<PageResponse<CommentResponse>>> {
       const response = await fetch(
-        `/api/models/${modelId}/comments?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/${modelId}/comments?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -388,7 +387,7 @@ export const api = {
 
     async getFavoriteModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models/favorites?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/favorites?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -396,7 +395,7 @@ export const api = {
 
     async getLikedModels(page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/models/likes?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/models/likes?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -421,7 +420,7 @@ export const api = {
 
     async searchTags(keyword: string): Promise<ApiResponse<TagResponse[]>> {
       const response = await fetch(
-        `/api/tags/search?keyword=${encodeURIComponent(keyword)}`,
+        `${API_BASE_URL}/api/tags/search?keyword=${encodeURIComponent(keyword)}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -595,7 +594,7 @@ export const api = {
 
     async getMyGenerationHistory(page = 0, size = 20): Promise<ApiResponse<PageResponse<unknown>>> {
       const response = await fetch(
-        `/api/generate/history/my?page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/generate/history/my?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -614,7 +613,7 @@ export const api = {
   search: {
     async search(query: string, page = 0, size = 20): Promise<ApiResponse<SearchAllResponse>> {
       const response = await fetch(
-        `/api/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -622,7 +621,7 @@ export const api = {
 
     async searchModels(query: string, page = 0, size = 20): Promise<ApiResponse<PageResponse<LoraModel>>> {
       const response = await fetch(
-        `/api/search/models?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/search/models?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);
@@ -630,7 +629,7 @@ export const api = {
 
     async searchUsers(query: string, page = 0, size = 20): Promise<ApiResponse<PageResponse<SearchUserResponse>>> {
       const response = await fetch(
-        `/api/search/users?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+        `${API_BASE_URL}/api/search/users?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
       );
       return handleResponse(response);

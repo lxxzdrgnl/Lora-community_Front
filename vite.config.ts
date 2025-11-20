@@ -26,7 +26,7 @@ export default defineConfig({
     host: '0.0.0.0', // 이 설정도 추가해 주세요.
     proxy: {
       '/api': {
-        target: process.env.VITE_API_BASE_URL || 'http://bluemingai.ap-northeast-2.elasticbeanstalk.com',
+        target: 'http://bluemingai.ap-northeast-2.elasticbeanstalk.com',
         changeOrigin: true,
         secure: false,
         ws: true,
