@@ -161,7 +161,7 @@ const handleOpenGenerate = (modelId: number) => {
       </p>
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg custom-shadow-glow" @click="openGenerateModal(null)">
-          Start Creating
+          Start Creatingㄴ
         </button>
       </div>
     </header>
