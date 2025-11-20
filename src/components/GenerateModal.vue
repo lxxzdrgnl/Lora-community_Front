@@ -458,7 +458,7 @@ onUnmounted(() => {
 }
 
 .modal-content {
-  background: var(--bg-card);
+  background: var(--bg-dark);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   width: 100%;

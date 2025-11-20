@@ -167,6 +167,9 @@ body {
 .p-md { padding: var(--space-md); }
 .p-lg { padding: var(--space-lg); }
 .p-xl { padding: var(--space-xl); }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+
 
 .px-sm { padding-left: var(--space-sm); padding-right: var(--space-sm); }
 .px-md { padding-left: var(--space-md); padding-right: var(--space-md); }
@@ -175,6 +178,8 @@ body {
 .py-sm { padding-top: var(--space-sm); padding-bottom: var(--space-sm); }
 .py-md { padding-top: var(--space-md); padding-bottom: var(--space-md); }
 .py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+.pt-lg { padding-top: var(--space-lg); }
+
 
 .m-0 { margin: 0; }
 .m-xs { margin: var(--space-xs); }
@@ -199,6 +204,13 @@ body {
 .mt-md { margin-top: var(--space-md); }
 .mt-lg { margin-top: var(--space-lg); }
 .mt-xl { margin-top: var(--space-xl); }
+
+.space-y-md > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(var(--space-md) * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(var(--space-md) * var(--tw-space-y-reverse));
+}
+
 
 /* ========== Typography ========== */
 .text-xs { font-size: 12px; }
@@ -225,6 +237,9 @@ body {
 .text-success { color: var(--success); }
 .text-error { color: var(--error); }
 .text-warning { color: var(--warning); }
+.text-white { color: #fff; }
+.text-blue-400 { color: #60a5fa; }
+
 
 /* ========== Cards ========== */
 .card {
@@ -279,6 +294,7 @@ body {
   background: var(--primary);
   color: #FFFFFF;
   box-shadow: var(--shadow-glow);
+  border: 1px solid var(--primary);
 }
 
 [data-theme='light'] .btn-primary {
@@ -288,6 +304,7 @@ body {
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   background: var(--primary-dark);
+  border-color: var(--primary-dark);
   box-shadow: 0 6px 24px rgba(59, 130, 246, 0.3);
 }
 
@@ -299,6 +316,9 @@ body {
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--bg-hover);
+}
+
+[data-theme='light'] .btn-secondary:hover:not(:disabled) {
   border-color: var(--primary);
 }
 
@@ -480,6 +500,7 @@ body {
 .w-3-of-4 { width: 75%; }
 .w-full { width: 100%; }
 .h-full { height: 100%; }
+.h-2\.5 { height: 0.625rem; }
 
 .rounded { border-radius: var(--radius-md); }
 .rounded-lg { border-radius: var(--radius-lg); }
@@ -494,8 +515,11 @@ body {
 
 .cursor-pointer { cursor: pointer; }
 
+.opacity-0 { opacity: 0; }
 .opacity-50 { opacity: 0.5; }
 .opacity-75 { opacity: 0.75; }
+.opacity-100 { opacity: 1; }
+
 
 .truncate {
   overflow: hidden;
@@ -569,9 +593,58 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+.bg-blue-500\/10 {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+.bg-red-500\/10 {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.bg-gray-700 {
+  background-color: #374151;
+}
+.bg-black\/50 {
+  background-color: rgba(0,0,0,0.5);
+}
+.bg-bg-dark\/90 {
+  background-color: rgba(var(--bg-dark-rgb), 0.9);
+}
+
+.object-cover { object-fit: cover; }
+.aspect-square { aspect-ratio: 1 / 1; }
+
+.fixed { position: fixed; }
+.absolute { position: absolute; }
+.relative { position: relative; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.-top-4 { top: -1rem; }
+.-right-4 { right: -1rem; }
+
+.z-10 { z-index: 10; }
+.z-50 { z-index: 50; }
+
+.max-w-4xl { max-width: 56rem; }
+.max-h-full { max-height: 100%; }
+.max-h-\[90vh\] { max-height: 90vh; }
+
+.transition-transform { transition-property: transform; }
+.transition-opacity { transition-property: opacity; }
+.duration-300 { transition-duration: 300ms; }
+
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
+}
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+
+.border-t { border-top-width: 1px; }
+.border-border { border-color: var(--border); }
+
+
 /* ========== Responsive ========== */
 @media (max-width: 1024px) {
   .grid-cols-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 768px) {
@@ -584,6 +657,8 @@ body {
   .grid-cols-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 
   .text-4xl { font-size: 28px; }
   .text-3xl { font-size: 24px; }
