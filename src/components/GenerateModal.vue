@@ -38,8 +38,8 @@ const currentStep = ref(0);
 const totalSteps = ref(0);
 const statusMessage = ref('');
 
-let eventSource: EventSource | null = null;
 let currentHistoryId: number | null = null;
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
 
 // Watch for the modal to open
 watch(() => props.show, async (newVal) => {
@@ -63,11 +63,8 @@ watch(() => props.show, async (newVal) => {
     // 진행 중인 작업 확인
     await checkOngoingGeneration();
   } else {
-    // 모달 닫을 때 SSE 연결 종료
-    if (eventSource) {
-      eventSource.close();
-      eventSource = null;
-    }
+    // 모달 닫을 때 폴링 종료
+    stopPolling();
     currentHistoryId = null;
   }
 });
@@ -105,9 +102,9 @@ const checkOngoingGeneration = async () => {
       currentHistoryId = response.data.id;
       isGenerating.value = true;
 
-      // 초기 상태: 모델 불러오는 중 (SSE에서 진행률 오기 전)
-      currentStep.value = 0;
-      totalSteps.value = 0;
+      // 초기 상태
+      currentStep.value = response.data.currentStep || 0;
+      totalSteps.value = response.data.totalSteps || 0;
       statusMessage.value = '모델 불러오는 중...';
 
       // 모델 정보 복원
@@ -123,10 +120,10 @@ const checkOngoingGeneration = async () => {
       numImages.value = response.data.numImages || 1;
       seed.value = response.data.seed;
 
-      // SSE 재연결
-      connectToProgressStream();
+      // 폴링 시작
+      startPolling();
 
-      console.log('✅ SSE 재연결 완료. historyId:', currentHistoryId);
+      console.log('✅ 폴링 재시작. historyId:', currentHistoryId);
     } else {
       console.log('✅ 진행 중인 작업 없음');
     }
@@ -261,14 +258,16 @@ const startGeneration = async () => {
     const response = await api.generation.generateImage(payload as any);
     console.log('Generation response:', response);
 
-    // historyId 저장 (SSE 이벤트 필터링용)
+    // historyId 저장
     if (response.data && response.data.historyId) {
       currentHistoryId = response.data.historyId as number;
       console.log('📝 Generation started. historyId:', currentHistoryId);
-    }
 
-    // 상태 메시지는 "모델 불러오는 중..."으로 유지 (SSE에서 업데이트됨)
-    connectToProgressStream();
+      // 폴링 시작 (1초마다)
+      startPolling();
+    } else {
+      throw new Error('historyId를 받지 못했습니다');
+    }
   } catch (err) {
     console.error('Generation error:', err);
     if (err instanceof Error) {
@@ -280,66 +279,78 @@ const startGeneration = async () => {
   }
 };
 
-const connectToProgressStream = () => {
-  if (eventSource) eventSource.close();
-  eventSource = api.generation.streamGenerationProgress((data: GenerationProgressResponse) => {
-    console.log('📨 SSE 이벤트 수신:', data);
+// 폴링 시작 (1초마다 상태 확인)
+const startPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
 
-    if (data.status === 'IN_PROGRESS') {
-      // FastAPI 진행률 업데이트 (모든 생성 작업에 대한 진행률이 올 수 있음)
-      const newStep = data.current_step || 0;
-      const newTotalSteps = data.total_steps || 0;
+  console.log('🔄 폴링 시작 - historyId:', currentHistoryId);
+  statusMessage.value = '모델 불러오는 중...';
 
-      // 첫 진행률이 올 때 totalSteps 설정
-      if (totalSteps.value === 0 && newTotalSteps > 0) {
-        totalSteps.value = newTotalSteps;
-        console.log('🎯 Total steps 설정:', newTotalSteps);
-      }
-
-      currentStep.value = newStep;
-      statusMessage.value = data.message || 'Generating...';
-    } else if (data.status === 'SUCCESS') {
-      // 백엔드 완료 이벤트 (이미지 URL 포함)
-      // 현재 생성 요청의 historyId와 일치하는지 확인
-      if (data.historyId && currentHistoryId && data.historyId !== currentHistoryId) {
-        console.log('⏭️ 다른 생성 요청의 완료 이벤트 (무시):', data.historyId);
-        return;
-      }
-
-      console.log('✅ 생성 완료!', data);
-      isGenerating.value = false;
-      statusMessage.value = 'Generation completed!';
-
-      // generatedImages 배열에서 s3Url 추출
-      if (data.generatedImages && Array.isArray(data.generatedImages)) {
-        generatedImages.value = data.generatedImages.map((img: any) => img.s3Url);
-        console.log('🖼️ 생성된 이미지 URLs:', generatedImages.value);
-      } else {
-        console.warn('⚠️ 생성된 이미지가 없습니다:', data);
-      }
-
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
-      currentHistoryId = null;
-    } else if (data.status === 'FAILED') {
-      // 생성 실패
-      if (data.historyId && currentHistoryId && data.historyId !== currentHistoryId) {
-        console.log('⏭️ 다른 생성 요청의 실패 이벤트 (무시):', data.historyId);
-        return;
-      }
-
-      console.error('❌ 생성 실패:', data.message);
-      isGenerating.value = false;
-      error.value = data.message || 'Generation failed';
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
-      currentHistoryId = null;
+  pollingInterval = setInterval(async () => {
+    if (!currentHistoryId) {
+      stopPolling();
+      return;
     }
-  });
+
+    try {
+      const response = await api.generation.getGenerationHistory(currentHistoryId);
+      console.log('📊 폴링 응답:', response.data);
+
+      const history = response.data;
+
+      if (history.status === 'SUCCESS') {
+        console.log('✅ 생성 완료!', history);
+        isGenerating.value = false;
+        statusMessage.value = 'Generation completed!';
+
+        // S3 URLs 추출
+        if (history.generatedImages && Array.isArray(history.generatedImages)) {
+          generatedImages.value = history.generatedImages.map((img: any) => img.s3Url);
+          console.log('🖼️ 생성된 이미지 URLs:', generatedImages.value);
+        } else {
+          console.error('❌ generatedImages 없음:', history);
+          error.value = '이미지 생성은 완료되었으나 이미지를 찾을 수 없습니다.';
+        }
+
+        stopPolling();
+        currentHistoryId = null;
+      } else if (history.status === 'FAILED') {
+        console.error('❌ 생성 실패:', history.errorMessage);
+        isGenerating.value = false;
+        error.value = history.errorMessage || 'Generation failed';
+        stopPolling();
+        currentHistoryId = null;
+      } else {
+        // GENERATING 상태 - 진행률 업데이트
+        if (history.currentStep !== undefined && history.totalSteps !== undefined) {
+          currentStep.value = history.currentStep;
+          totalSteps.value = history.totalSteps;
+          statusMessage.value = `Generating... (${history.currentStep}/${history.totalSteps})`;
+          console.log(`📊 진행률: ${history.currentStep}/${history.totalSteps}`);
+        } else {
+          statusMessage.value = 'Generating...';
+          console.log('📊 상태: GENERATING (진행률 정보 없음)');
+        }
+      }
+    } catch (err) {
+      console.error('❌ 폴링 에러:', err);
+      // 에러가 계속 발생하면 폴링 중지
+      error.value = `폴링 에러: ${err instanceof Error ? err.message : String(err)}`;
+      statusMessage.value = 'Error checking status';
+      stopPolling();
+      isGenerating.value = false;
+    }
+  }, 1000); // 1초마다
+};
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+    console.log('⏹️ 폴링 중지');
+  }
 };
 
 const downloadImage = (url: string, index: number) => {
@@ -354,9 +365,8 @@ const closeModal = () => {
 };
 
 onUnmounted(() => {
-  if (eventSource) {
-    eventSource.close();
-  }
+  // 컴포넌트 언마운트 시 폴링 중지
+  stopPolling();
 });
 </script>
 

@@ -155,6 +155,10 @@ export interface GenerationHistoryResponse {
   guidanceScale?: number;
   seed?: number;
   numImages: number;
+  status: string; // GENERATING, SUCCESS, FAILED
+  currentStep?: number;
+  totalSteps?: number;
+  errorMessage?: string;
   generatedImages: GeneratedImageResponse[];
   createdAt: string;
 }
@@ -631,6 +635,14 @@ export const api = {
       const response = await fetch(
         `${API_BASE_URL}/api/generate/history/my?page=${page}&size=${size}`,
         { headers: getAuthHeaders() }
+      );
+      return handleResponse(response);
+    },
+
+    async getGenerationHistory(historyId: number): Promise<ApiResponse<GenerationHistoryResponse>> {
+      const response = await fetch(
+        `${API_BASE_URL}/api/generate/history/${historyId}`,
+        { headers: { 'Content-Type': 'application/json' } } // 인증 없이 폴링 (백엔드에서 permitAll 설정됨)
       );
       return handleResponse(response);
     },
