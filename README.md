@@ -35,8 +35,18 @@
 
 ## 주요 링크
 
-### Production
+### Production (현재 - Self-hosted 미니 PC)
 - **Frontend**: https://blueming.rheon.kr
+- **Backend API**: https://api-blueming.rheon.kr
+- **Swagger UI**: https://api-blueming.rheon.kr/swagger-ui.html
+- **Health Check**: https://api-blueming.rheon.kr/actuator/health
+- **MinIO Storage**: https://storage.rheon.kr
+- **MinIO Console**: https://minio.rheon.kr
+
+### 과거 배포 주소 (AWS + JCloud)
+- **Frontend (AWS CloudFront)**: https://d2f4r8lrfwl0ez.cloudfront.net _(종료)_
+- **Backend (AWS CloudFront)**: https://d3ka730j70ocy8.cloudfront.net _(종료)_
+- **Backend (JCloud)**: http://113.198.66.68:18232 _(종료)_
 
 ### Repository Links
 - **Backend Github**: https://github.com/lxxzdrgnl/Lora-community
@@ -47,25 +57,32 @@
 ## 시스템 아키텍처
 
 ```
-┌──────────────────┐      ┌───────────────────────────┐      ┌─────────────────┐
-│     Vue.js       │ <--> │ AWS Elastic Beanstalk     │ <--> │    FastAPI      │
-│   (Frontend)     │      │ (Spring Boot 3 Backend)   │      │  (AI Service)   │
-│ blueming.rheon.kr│      └───────────┬───────────────┘      └─────────────────┘
-│  (Mini PC + NPM) │                  │
-└──────────────────┘     ┌────────────┴────────────┐
-                          │                         │
-                          v                         v
-                  ┌─────────────────┐      ┌─────────────────┐
-                  │   AWS RDS       │      │   AWS S3        │
-                  │   (MySQL)       │      │   (Storage)     │
-                  └─────────────────┘      └─────────────────┘
-                          │
-                          v
-                  ┌─────────────────┐
-                  │   Redis         │
-                  │   (Upstash)     │
-                  └─────────────────┘
+[사용자 브라우저]
+       │
+       ▼
+[Cloudflare] (DNS + SSL)
+       │
+       ├── blueming.rheon.kr ──────────▶ [Vue.js Frontend]
+       │                                  (Nginx, Docker)
+       │
+       ├── api-blueming.rheon.kr ──────▶ [Spring Boot 3 Backend]
+       │                                  (Docker, :8080)
+       │                                       │
+       │                               ┌───────┼───────┐
+       │                               ▼       ▼       ▼
+       │                           [MySQL] [Redis] [MinIO]
+       │                           (Docker)(Docker)(Docker)
+       │
+       └── storage.rheon.kr ───────────▶ [MinIO S3 API]
+                                          (Docker, :9000)
+                                               │
+                                    ┌──────────┘ (HTTP 콜백)
+                                    ▼
+                           [FastAPI on Modal]
+                           (외부 플랫폼, GPU)
 ```
+
+**인프라 구성**: 모든 서비스(프론트엔드, 백엔드, MySQL, Redis, MinIO)는 미니 PC(Ubuntu 24.04)의 Docker 컨테이너로 운영됩니다. FastAPI AI 서버만 Modal 외부 플랫폼을 사용합니다.
 
 ---
 
@@ -165,10 +182,15 @@ Docker 볼륨으로 호스트 디렉토리와 nginx 컨테이너가 연결되어
 프로젝트가 백엔드 API와 통신하려면 `.env` 파일에 필요한 환경 변수를 설정해야 합니다.
 
 ```env
-# .env
-VITE_API_BASE_URL=http://localhost:8080       # 메인 백엔드 API 서버
-VITE_FRONTEND_URL=http://localhost:5173       # 프론트엔드 URL
+# .env (로컬 개발)
+VITE_API_BASE_URL=http://localhost:8080       # 로컬 백엔드
+VITE_FRONTEND_URL=http://localhost:5173       # 로컬 프론트엔드 URL
 VITE_FIREBASE_API_KEY=your_firebase_api_key   # Firebase API Key
+
+# .env (프로덕션 - 미니 PC)
+VITE_API_BASE_URL=https://api-blueming.rheon.kr
+VITE_FRONTEND_URL=https://blueming.rheon.kr
+VITE_FIREBASE_API_KEY=your_firebase_api_key
 ```
 
 ### 2. 의존성 설치 및 실행
