@@ -36,14 +36,7 @@
 ## 주요 링크
 
 ### Production
-- **Frontend (AWS CloudFront)**: https://d2f4r8lrfwl0ez.cloudfront.net
-- **Frontend (JCloud)**: http://113.198.66.75:18196
-- **Backend (AWS CloudFront)**: https://d3ka730j70ocy8.cloudfront.net
-- **Backend (JCloud)**: http://113.198.66.68:18232
-- **Swagger UI (AWS)**: https://d3ka730j70ocy8.cloudfront.net/swagger-ui.html
-- **Swagger UI (JCloud)**: http://113.198.66.68:18232/swagger-ui.html
-- **Health Check (AWS)**: https://d3ka730j70ocy8.cloudfront.net/actuator/health
-- **Health Check (JCloud)**: http://113.198.66.68:18232/actuator/health
+- **Frontend**: https://blueming.rheon.kr
 
 ### Repository Links
 - **Backend Github**: https://github.com/lxxzdrgnl/Lora-community
@@ -54,24 +47,24 @@
 ## 시스템 아키텍처
 
 ```
-┌─────────────┐      ┌───────────────────────────┐      ┌─────────────────┐
-│   Vue.js    │ <--> │ AWS Elastic Beanstalk     │ <--> │    FastAPI      │
-│  (Frontend) │      │ (Spring Boot 3 Backend)   │      │  (AI Service)   │
-└─────────────┘      └───────────┬───────────────┘      └─────────────────┘
-                                 │
-                    ┌────────────┴────────────┐
-                    │                         │
-                    v                         v
-            ┌─────────────────┐      ┌─────────────────┐
-            │   AWS RDS       │      │   AWS S3        │
-            │   (MySQL)       │      │   (Storage)     │
-            └─────────────────┘      └─────────────────┘
-                    │
-                    v
-            ┌─────────────────┐
-            │   Redis         │
-            │   (Upstash)     │
-            └─────────────────┘
+┌──────────────────┐      ┌───────────────────────────┐      ┌─────────────────┐
+│     Vue.js       │ <--> │ AWS Elastic Beanstalk     │ <--> │    FastAPI      │
+│   (Frontend)     │      │ (Spring Boot 3 Backend)   │      │  (AI Service)   │
+│ blueming.rheon.kr│      └───────────┬───────────────┘      └─────────────────┘
+│  (Mini PC + NPM) │                  │
+└──────────────────┘     ┌────────────┴────────────┐
+                          │                         │
+                          v                         v
+                  ┌─────────────────┐      ┌─────────────────┐
+                  │   AWS RDS       │      │   AWS S3        │
+                  │   (MySQL)       │      │   (Storage)     │
+                  └─────────────────┘      └─────────────────┘
+                          │
+                          v
+                  ┌─────────────────┐
+                  │   Redis         │
+                  │   (Upstash)     │
+                  └─────────────────┘
 ```
 
 ---
@@ -148,28 +141,20 @@ src/
 
 ## CI/CD
 
-**GitHub Actions**를 사용하여 AWS와 JCloud 두 환경으로 자동 배포되는 CI/CD 파이프라인을 구축했습니다.
+**GitHub Actions**를 사용하여 개인 서버(Mini PC)로 자동 배포되는 CI/CD 파이프라인을 구축했습니다.
 
 ### 배포 프로세스
 
 `main` 브랜치에 코드가 푸시되면 다음 프로세스가 자동으로 실행됩니다:
 
-#### 1. AWS CloudFront 배포
 1. Node.js 20 환경 설정
 2. 의존성 설치 (`npm ci`)
-3. AWS용 환경변수로 프로젝트 빌드
-4. AWS S3 버킷에 정적 파일 업로드
-5. CloudFront 캐시 무효화
+3. 환경변수로 프로젝트 빌드
+4. SSH를 통해 개인 서버 접속
+5. `~/blueming/frontend/`에 빌드 파일 업로드
+6. Docker 볼륨 마운트로 nginx 컨테이너에 자동 반영
 
-#### 2. JCloud 배포
-1. Node.js 20 환경 설정
-2. 의존성 설치 (`npm ci`)
-3. JCloud용 환경변수로 프로젝트 빌드
-4. SSH를 통해 JCloud 서버 (113.198.66.75:19196)에 접속
-5. 빌드된 파일을 Nginx 서빙 디렉토리로 복사
-6. Nginx 재시작
-
-이를 통해 AWS와 JCloud 두 환경에서 사용자가 항상 최신 버전을 이용할 수 있도록 합니다.
+Docker 볼륨으로 호스트 디렉토리와 nginx 컨테이너가 연결되어 있어, 파일 업로드만으로 즉시 배포가 완료됩니다.
 
 ---
 
