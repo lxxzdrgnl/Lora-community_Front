@@ -1,4 +1,4 @@
-name: Deploy Vue Frontend to AWS & JCloud
+name: Deploy Vue Frontend to Personal PC
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-aws:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,146 +21,35 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Build for AWS CloudFront
+      - name: Build
         run: npm run build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
-
-      - name: Upload AWS build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-aws
-          path: dist/
-          retention-days: 1
-
-  build-jcloud:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build for JCloud
-        run: npm run build
-        env:
-          VITE_API_BASE_URL: http://113.198.66.68:18232
-          VITE_FRONTEND_URL: http://113.198.66.75:18196
-
-      - name: Upload JCloud build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-jcloud
-          path: dist/
-          retention-days: 1
-
-  deploy-aws:
-    needs: build-aws
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-aws
-          path: dist
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Deploy to S3
-        run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
-
-      - name: Invalidate CloudFront Cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
-
-  deploy-jcloud:
-    needs: build-jcloud
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-jcloud
-          path: dist
 
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.JCLOUD_SSH_KEY }}" > ~/.ssh/jcloud_key.pem
-          chmod 600 ~/.ssh/jcloud_key.pem
+          echo "${{ secrets.PC_SSH_KEY }}" > ~/.ssh/pc_key
+          chmod 600 ~/.ssh/pc_key
+          ssh-keyscan -H ${{ secrets.PC_SSH_HOST }} >> ~/.ssh/known_hosts
 
-          # SSH 키 파일 확인
-          echo "SSH key file created:"
-          ls -la ~/.ssh/jcloud_key.pem
-          echo "First line of SSH key:"
-          head -n 1 ~/.ssh/jcloud_key.pem
-
-          # SSH 연결 테스트 (타임아웃 10초)
-          echo "Testing SSH connection..."
-          ssh-keyscan -p 19196 -T 10 113.198.66.75 >> ~/.ssh/known_hosts 2>&1 || echo "Warning: ssh-keyscan failed, continuing anyway"
-
-          # 실제 SSH 연결 테스트
-          ssh -i ~/.ssh/jcloud_key.pem -p 19196 -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@113.198.66.75 "echo 'SSH connection successful'" || {
-            echo "SSH connection failed. Check your SSH key and server accessibility."
-            exit 1
-          }
-
-      - name: Deploy to JCloud via SCP
+      - name: Upload build files to PC
         run: |
-          scp -i ~/.ssh/jcloud_key.pem -P 19196 -o StrictHostKeyChecking=no -r dist/* ubuntu@113.198.66.75:~/dist/
+          ssh -i ~/.ssh/pc_key -o StrictHostKeyChecking=no \
+            ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }} \
+            "mkdir -p ~/blueming/frontend && rm -rf ~/blueming/frontend/*"
 
-      - name: Setup Nginx with HTTPS on JCloud
+          scp -i ~/.ssh/pc_key \
+            -o StrictHostKeyChecking=no \
+            -r dist/* \
+            ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }}:~/blueming/frontend/
+
+      - name: Finalize Deployment
         run: |
-          ssh -i ~/.ssh/jcloud_key.pem -p 19196 -o StrictHostKeyChecking=no ubuntu@113.198.66.75 << 'EOF'
-            # Nginx가 설치되어 있지 않으면 설치
-            if ! command -v nginx &> /dev/null; then
-              sudo apt-get update
-              sudo apt-get install -y nginx
-            fi
+          echo "배포 완료 — Docker 볼륨으로 자동 반영됩니다."
 
-            # 자체 서명 SSL 인증서 생성 (이미 있으면 스킵)
-            if [ ! -f /etc/nginx/ssl/nginx.crt ]; then
-              sudo mkdir -p /etc/nginx/ssl
-              sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-                -keyout /etc/nginx/ssl/nginx.key \
-                -out /etc/nginx/ssl/nginx.crt \
-                -subj "/C=KR/ST=Seoul/L=Seoul/O=LoRA/CN=113.198.66.75"
-            fi
-
-            # dist 디렉토리를 nginx 서빙 디렉토리로 복사
-            sudo rm -rf /var/www/html/*
-            sudo cp -r ~/dist/* /var/www/html/
-
-            # Nginx 설정이 없으면 기본 HTTPS 설정 생성
-            if [ ! -f /etc/nginx/sites-available/default.bak ]; then
-              sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
-              echo "Nginx default config backed up"
-            fi
-
-            # Nginx 재시작
-            sudo systemctl restart nginx
-            sudo systemctl enable nginx
-
-            echo "HTTPS deployment completed! Access via: https://113.198.66.75:17196"
-          EOF
-
-      - name: Cleanup
+      - name: Cleanup SSH Key
         if: always()
-        run: rm -f ~/.ssh/jcloud_key.pem
+        run: rm -f ~/.ssh/pc_key
