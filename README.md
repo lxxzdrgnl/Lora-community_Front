@@ -37,6 +37,7 @@
 
 ### Production (현재 - Self-hosted 미니 PC)
 - **Frontend**: https://blueming.rheon.kr
+- **Frontend - 테스트계정으로 접속** : https://blueming.rheon.kr/test
 - **Backend API**: https://api-blueming.rheon.kr
 - **Swagger UI**: https://api-blueming.rheon.kr/swagger-ui.html
 - **Health Check**: https://api-blueming.rheon.kr/actuator/health

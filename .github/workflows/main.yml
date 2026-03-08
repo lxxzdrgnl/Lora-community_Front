@@ -39,12 +39,25 @@ jobs:
         run: |
           ssh -i ~/.ssh/pc_key -o StrictHostKeyChecking=no \
             ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }} \
-            "mkdir -p ~/blueming/frontend && rm -rf ~/blueming/frontend/*"
+            "mkdir -p ~/blueming/frontend ~/blueming/nginx && rm -rf ~/blueming/frontend/*"
 
           scp -i ~/.ssh/pc_key \
             -o StrictHostKeyChecking=no \
             -r dist/* \
             ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }}:~/blueming/frontend/
+
+          scp -i ~/.ssh/pc_key \
+            -o StrictHostKeyChecking=no \
+            nginx/default.conf \
+            ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }}:~/blueming/nginx/default.conf
+
+      - name: Apply Nginx Config and Reload
+        run: |
+          ssh -i ~/.ssh/pc_key -o StrictHostKeyChecking=no \
+            ${{ secrets.PC_SSH_USER }}@${{ secrets.PC_SSH_HOST }} \
+            "docker cp ~/blueming/nginx/default.conf blueming-frontend:/etc/nginx/conf.d/default.conf && \
+             docker exec blueming-frontend nginx -s reload && \
+             echo '✅ Nginx config applied and reloaded'"
 
       - name: Finalize Deployment
         run: |
